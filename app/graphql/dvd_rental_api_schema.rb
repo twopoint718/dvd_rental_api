@@ -32,9 +32,11 @@ class DvdRentalApiSchema < GraphQL::Schema
     object.to_gid_param
   end
 
-  # Given a string UUID, find the object
-  def self.object_from_id(global_id, query_ctx)
-    # For example, use Rails' GlobalID library (https://github.com/rails/globalid):
-    GlobalID.find(global_id)
+  def self.object_from_id(node_id, _ctx)
+    return unless node_id.present?
+
+    record_class_name, record_id = GraphQL::Schema::UniqueWithinType.decode(node_id)
+    record_class = record_class_name.safe_constantize
+    record_class&.find_by id: record_id
   end
 end
